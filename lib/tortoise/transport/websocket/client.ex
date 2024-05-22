@@ -4,9 +4,9 @@ defmodule Tortoise.Transport.Websocket.Client do
 
   Example of usage where a client is started and connected, then it is used to send and receive
   data:
-      iex> {:ok, socket} = TortoiseWebsocket.Client.connect('example.com', 80, [])
-      iex> :ok = TortoiseWebsocket.Client.send(socket, "data")
-      iex> {:ok, data} = TortoiseWebsocket.Client.recv(socket, 100)
+      iex> {:ok, socket} = Tortoise.Transport.Websocket.Client.connect('example.com', 80, [])
+      iex> :ok = Tortoise.Transport.Websocket.Client.send(socket, "data")
+      iex> {:ok, data} = Tortoise.Transport.Websocket.Client.recv(socket, 100)
 
   When the client has the option `:active` set to `true` or `:once` it will send to the process
   that started the client or the controlling process defined with `controlling_process/2` function
@@ -68,7 +68,7 @@ defmodule Tortoise.Transport.Websocket.Client do
   def connect(host, port, opts \\ [], timeout \\ 5_000)
       when (is_list(host) or is_atom(host) or is_tuple(host)) and (is_integer(port) and port > 0) and
              is_list(opts) and is_integer(timeout) and timeout > 0 do
-    case TortoiseWebsocket.Client.Supervisor.start_child({self(), host, port, opts, timeout}) do
+    case Tortoise.Transport.Websocket.Client.Supervisor.start_child({self(), host, port, opts, timeout}) do
       {:ok, pid} -> GenStateMachine.call(pid, :connect)
       error -> error
     end

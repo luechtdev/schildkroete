@@ -12,7 +12,7 @@ defmodule Tortoise.Transport.Websocket.Client.Supervisor do
   end
 
   def start_child(args) do
-    child_spec = TortoiseWebsocket.Client.child_spec(args)
+    child_spec = Tortoise.Transport.Websocket.Client.child_spec(args)
     DynamicSupervisor.start_child(__MODULE__, child_spec)
   end
 end
