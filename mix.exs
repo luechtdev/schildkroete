@@ -43,6 +43,7 @@ defmodule Tortoise.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:tortoise_transport_websocket, path: "lib/tortoise/transport/websocket"},
       {:gen_state_machine, "~> 2.0 or ~> 3.0"},
       {:gun, "~> 1.3"},
       {:socket, "~> 0.3"},
