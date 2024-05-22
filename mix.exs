@@ -44,6 +44,8 @@ defmodule Tortoise.MixProject do
   defp deps do
     [
       {:gen_state_machine, "~> 2.0 or ~> 3.0"},
+      {:gun, "~> 1.3"},
+      {:socket, "~> 0.3"},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:eqc_ex, "~> 1.4", only: :test},
       {:excoveralls, "~> 0.10", only: :test},

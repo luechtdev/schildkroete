@@ -52,7 +52,7 @@ defmodule Tortoise.Connection.Receiver do
   @impl true
   # receiving data on the network connection
   def handle_event(:info, {transport, socket, tcp_data}, _, %{socket: socket} = data)
-      when transport in [:tcp, :ssl] do
+      when transport in [:tcp, :ssl, :websocket] do
     next_actions = [
       {:next_event, :internal, :activate_socket},
       {:next_event, :internal, :consume_buffer}
@@ -68,7 +68,7 @@ defmodule Tortoise.Connection.Receiver do
   # method such as the SSL based one will pass an opaque data
   # structure around instead of a port that can be monitored.
   def handle_event(:info, {transport, socket}, _state, %{socket: socket} = data)
-      when transport in [:tcp_closed, :ssl_closed] do
+      when transport in [:tcp_closed, :ssl_closed, :websocket_closed] do
     # should we empty the buffer?
 
     # communicate to the world that we have dropped the connection

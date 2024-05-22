@@ -11,6 +11,7 @@ defmodule Tortoise.App do
     children = [
       {Registry, [keys: :unique, name: Tortoise.Registry]},
       {Registry, [keys: :duplicate, name: Tortoise.Events]},
+      {Tortoise.Transport.Websocket.Application, []},
       {Tortoise.Supervisor, [strategy: :one_for_one]}
     ]
 

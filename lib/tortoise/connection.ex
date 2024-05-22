@@ -15,6 +15,7 @@ defmodule Tortoise.Connection do
     :server,
     :status,
     :backoff,
+    :reconnect,
     :subscriptions,
     :keep_alive,
     :opts,
@@ -60,6 +61,7 @@ defmodule Tortoise.Connection do
     }
 
     backoff = Keyword.get(connection_opts, :backoff, [])
+    reconnect = Keyword.get(connection_opts, :reconnect, true)
 
     # This allow us to either pass in a list of topics, or a
     # subscription struct. Passing in a subscription struct is helpful
@@ -75,7 +77,7 @@ defmodule Tortoise.Connection do
 
     # @todo, validate that the handler is valid
     connection_opts = Keyword.take(connection_opts, [:client_id, :handler])
-    initial = {server, connect, backoff, subscriptions, connection_opts}
+    initial = {server, connect, backoff, reconnect, subscriptions, connection_opts}
     opts = Keyword.merge(opts, name: via_name(client_id))
     GenServer.start_link(__MODULE__, initial, opts)
   end
@@ -361,7 +363,8 @@ defmodule Tortoise.Connection do
   # Callbacks
   @impl true
   def init(
-        {transport, %Connect{client_id: client_id} = connect, backoff_opts, subscriptions, opts}
+        {transport, %Connect{client_id: client_id} = connect, backoff_opts, reconnect,
+         subscriptions, opts}
       ) do
     Handler.new(Keyword.fetch!(opts, :handler))
 
@@ -373,6 +376,7 @@ defmodule Tortoise.Connection do
       server: transport,
       connect: connect,
       backoff: Backoff.new(backoff_opts),
+      reconnect: reconnect,
       subscriptions: subscriptions,
       opts: opts,
       status: :down,
@@ -476,7 +480,8 @@ defmodule Tortoise.Connection do
   end
 
   # dropping connection
-  def handle_info({transport, _socket}, state) when transport in [:tcp_closed, :ssl_closed] do
+  def handle_info({transport, _socket}, state)
+      when transport in [:tcp_closed, :ssl_closed, :websocket_closed] do
     Logger.error("Socket closed before we handed it to the receiver")
     # communicate that we are down
     :ok = Events.dispatch(state.client_id, :status, :down)
@@ -486,7 +491,7 @@ defmodule Tortoise.Connection do
   # react to connection status change events
   def handle_info(
         {{Tortoise, client_id}, :status, status},
-        %{client_id: client_id, status: current} = state
+        %{client_id: client_id, status: current, reconnect: reconnect} = state
       ) do
     case status do
       ^current ->
@@ -496,8 +501,12 @@ defmodule Tortoise.Connection do
         {:noreply, %State{state | status: status}}
 
       :down ->
-        send(self(), :connect)
-        {:noreply, %State{state | status: status}}
+        if reconnect do
+          send(self(), :connect)
+          {:noreply, %State{state | status: status}}
+        else
+          {:stop, :shutdown, state}
+        end
     end
   end
 
