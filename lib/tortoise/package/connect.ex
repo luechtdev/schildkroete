@@ -1,5 +1,6 @@
 defmodule Tortoise.Package.Connect do
   @moduledoc false
+  @derive {Inspect, except: [:password]}
 
   @opcode 1
 
