@@ -8,7 +8,7 @@ defmodule Tortoise.Transport.Websocket.Application do
       Tortoise.Transport.Websocket.Client.Supervisor
     ]
 
-    opts = [strategy: :one_for_one, name: Tortoise.Transport.Websocket.Supervisor]
+    opts = [strategy: :one_for_one, name: Tortoise.Transport.Websocket.Client.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
