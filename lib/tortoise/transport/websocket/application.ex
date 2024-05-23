@@ -4,11 +4,8 @@ defmodule Tortoise.Transport.Websocket.Application do
   use Application
 
   def start(_type, _args) do
-    children = [
-      Tortoise.Transport.Websocket.Client.Supervisor
-    ]
-
-    opts = [strategy: :one_for_one, name: Tortoise.Transport.Websocket.Client.Supervisor]
+    children = [Tortoise.Transport.Websocket.Client.Supervisor]
+    opts = [strategy: :one_for_one, name: Tortoise.Transport.Websocket.Application.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end
