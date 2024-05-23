@@ -42,6 +42,7 @@ defmodule Tortoise.Transport.Websocket.Client do
             caller: nil,
             socket: nil,
             buffer: "",
+            tls_opts: [verify: :verify_peer],
             recv_queue: :queue.new()
 
   @type reason() :: any()
@@ -171,7 +172,8 @@ defmodule Tortoise.Transport.Websocket.Client do
           transport: transport,
           path: path,
           headers: headers,
-          ws_opts: ws_opts
+          ws_opts: ws_opts,
+          tls_opts: tls_opts
         } = data
       ) do
     Logger.debug("[tortoise_websocket] Opening connection")
@@ -182,7 +184,8 @@ defmodule Tortoise.Transport.Websocket.Client do
              transport: transport,
              connect_timeout: timeout,
              protocols: [:http],
-             retry: 0
+             retry: 0,
+             tls_opts: tls_opts
            }),
          timeout <- remaining_timeout(timeout, start_time),
          {:ok, _} <- Gun.await_up(socket, timeout) do
