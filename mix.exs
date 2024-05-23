@@ -35,7 +35,7 @@ defmodule Tortoise.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :ssl],
+      extra_applications: [:logger, :ssl, :tortoise_transport_websocket],
       mod: {Tortoise.App, []}
     ]
   end
